@@ -3,8 +3,9 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/torogeldiiev/car_catalog/model"
 	"github.com/torogeldiiev/car_catalog/service"
@@ -48,21 +49,42 @@ func (c *CarController) CreateCarHandler(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(createdCars)
 }
 
-func (c *CarController) GetCarByIDHandler(w http.ResponseWriter, r *http.Request) {
-	carID := r.URL.Query().Get("id")
-	if carID == "" {
-		http.Error(w, "Car ID is required", http.StatusBadRequest)
+func (c *CarController) GetCarsFilteredHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract the filtering criteria from the query parameters
+	criteria := r.URL.Query().Get("criteria")
+	if criteria == "" {
+		http.Error(w, "Filtering criteria are required", http.StatusBadRequest)
 		return
 	}
 
-	car, err := c.service.GetCarByID(carID)
+	// Extract the limit and offset for pagination
+	limit := r.URL.Query().Get("limit")
+	offset := r.URL.Query().Get("offset")
+
+	// Convert limit and offset to integers
+	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
-		http.Error(w, "Failed to retrieve car", http.StatusInternalServerError)
+		http.Error(w, "Invalid limit parameter", http.StatusBadRequest)
+		return
+	}
+	offsetInt, err := strconv.Atoi(offset)
+	if err != nil {
+		http.Error(w, "Invalid offset parameter", http.StatusBadRequest)
 		return
 	}
 
+	// Call the service method to get cars based on filtering criteria
+	cars, err := c.service.GetCarsFiltered(criteria, limitInt, offsetInt)
+	if err != nil {
+		http.Error(w, "Failed to retrieve cars", http.StatusInternalServerError)
+		return
+	} else {
+		log.Println("[INFO] Successfully received car car id:", cars[0])
+	}
+
+	// Set response headers and encode the cars as JSON
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(car)
+	json.NewEncoder(w).Encode(cars)
 }
 
 func (c *CarController) UpdateCarHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,6 +103,8 @@ func (c *CarController) UpdateCarHandler(w http.ResponseWriter, r *http.Request)
 	if err := c.service.UpdateCar(carID, updatedCar); err != nil {
 		http.Error(w, "Failed to update car", http.StatusInternalServerError)
 		return
+	} else {
+		log.Println("[INFO] Successfully updated car with car id:", carID)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -96,59 +120,9 @@ func (c *CarController) DeleteCarHandler(w http.ResponseWriter, r *http.Request)
 	if err := c.service.DeleteCar(carID); err != nil {
 		http.Error(w, "Failed to delete car", http.StatusInternalServerError)
 		return
+	} else {
+		log.Println("[INFO] Successfully deleted car with car id:", carID)
 	}
 
 	w.WriteHeader(http.StatusOK)
-}
-
-func getCarInfo(regNum string) {
-	// Create a GET request to the external API endpoint
-	url := fmt.Sprintf("https://external-api.com/info?regNum=%s", regNum)
-	resp, err := http.Get(url)
-	if err != nil {
-		fmt.Printf("Failed to call external API: %v\n", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	// Decode the response body
-	var carInfo model.Car
-	if err := json.NewDecoder(resp.Body).Decode(&carInfo); err != nil {
-		fmt.Printf("Failed to decode API response: %v\n", err)
-		return
-	}
-
-	// Process the car information as needed
-	fmt.Println("Received car info from external API:", carInfo)
-}
-
-func defineMockCarHandler(regNum string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Define the response body (imaginary data)
-		responseData := map[string]interface{}{
-			"regNum": regNum,
-			"mark":   "Lada",
-			"model":  "Vesta",
-			"year":   2002,
-			"owner": map[string]string{
-				"name":       "John",
-				"surname":    "Doe",
-				"patronymic": "Smith",
-			},
-		}
-
-		// Set the response status code to 200 (OK)
-		w.WriteHeader(http.StatusOK)
-
-		// Marshal the response data to JSON format
-		responseJSON, err := json.Marshal(responseData)
-		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		// Write the JSON response to the response writer
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(responseJSON)
-	})
 }

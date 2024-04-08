@@ -32,13 +32,14 @@ func (s *CarService) CreateCar(regNums []string, db *sql.DB) ([]*model.Car, erro
 	// Filter out registration numbers that already exist
 	newRegNums := s.filterNewRegNums(regNums, existingRegNums)
 
-	// Info log for new registration numbers
-	log.Println("[INFO] New registration numbers to be inserted into the database:", newRegNums)
-
 	// If all registration numbers already exist, return an error
 	if len(newRegNums) == 0 {
+		log.Println("[INFO] All registration numbers already exist in the database")
 		return nil, errors.New("all registration numbers already exist in the database")
 	}
+
+	// Info log for new registration numbers
+	log.Println("[INFO] New registration numbers to be inserted into the database:", newRegNums)
 
 	// Make a request to the external API with new registration numbers
 	cars, err := repository.CreateCar(newRegNums, db)
@@ -58,8 +59,9 @@ func (s *CarService) CreateCar(regNums []string, db *sql.DB) ([]*model.Car, erro
 	return cars, nil
 }
 
-func (s *CarService) GetCarByID(carID string) (*model.Car, error) {
-	return repository.GetCarByID(carID)
+func (s *CarService) GetCarsFiltered(criteria string, limit, offset int) ([]*model.Car, error) {
+	// Call the repository method to get cars based on the provided criteria
+	return repository.GetCarsFiltered(criteria, limit, offset)
 }
 
 func (s *CarService) UpdateCar(carID string, updatedCar model.Car) error {
@@ -69,6 +71,7 @@ func (s *CarService) UpdateCar(carID string, updatedCar model.Car) error {
 func (s *CarService) DeleteCar(carID string) error {
 	return repository.DeleteCar(carID)
 }
+
 func (s *CarService) filterNewRegNums(regNums, existingRegNums []string) []string {
 	// Create a map to store existing registration numbers for efficient lookup
 	existingRegNumsMap := make(map[string]bool)
@@ -82,7 +85,7 @@ func (s *CarService) filterNewRegNums(regNums, existingRegNums []string) []strin
 		if !existingRegNumsMap[regNum] {
 			newRegNums = append(newRegNums, regNum)
 		} else {
-			log.Print("This reg number is already exist in database")
+			log.Print("[INFO] Registration number already exists in database:", regNum)
 		}
 	}
 	return newRegNums

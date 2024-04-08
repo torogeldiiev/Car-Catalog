@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/Masterminds/squirrel"
 	"github.com/torogeldiiev/car_catalog/database"
 	"github.com/torogeldiiev/car_catalog/model"
 	"io/ioutil"
@@ -62,7 +63,7 @@ func CreateCar(regNums []string, db *sql.DB) ([]*model.Car, error) {
 		// Execute the prepared SQL statement with car details
 		_, err = stmt.Exec(car.RegNum, car.Make, car.Model, car.Year, car.OwnerID)
 		if err != nil {
-			log.Printf("[INFO] Error inserting car into database: %v", err)
+			log.Println("[INFO] Error inserting car into database: %v", err)
 			// Continue to the next car if an error occurs
 			continue
 		}
@@ -71,20 +72,6 @@ func CreateCar(regNums []string, db *sql.DB) ([]*model.Car, error) {
 	log.Printf("[INFO] Successfully inserted %d cars into the database", len(cars))
 
 	return cars, nil
-}
-
-func GetCarByID(carID string) (*model.Car, error) {
-	query := "SELECT id, reg_num, mark, model, year, owner_id FROM cars WHERE id = $1"
-	row := database.DB.QueryRow(query, carID)
-
-	var car model.Car
-	err := row.Scan(&car.ID, &car.RegNum, &car.Make, &car.Model, &car.Year, &car.OwnerID)
-	if err != nil {
-		log.Printf("[INFO] Error getting car by ID: %v", err) // Log the error
-		return nil, err
-	}
-
-	return &car, nil
 }
 
 func UpdateCar(carID string, updatedCar model.Car) error {
@@ -127,4 +114,45 @@ func GetExistingRegNums(db *sql.DB) ([]string, error) {
 		existingRegNums = append(existingRegNums, regNum)
 	}
 	return existingRegNums, nil
+}
+
+func GetCarsFiltered(criteria string, limit, offset int) ([]*model.Car, error) {
+	queryBuilder := squirrel.Select("id", "reg_num", "mark", "model", "year", "owner_id").
+		From("cars").
+		Limit(uint64(limit)).
+		Offset(uint64(offset))
+
+	// Adding the WHERE clause based on the provided criteria
+	if criteria != "" {
+		queryBuilder = queryBuilder.Where(criteria)
+	}
+
+	// Generate the final SQL query
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		log.Println("[INFO] Error generating SQL query: %v", err)
+		return nil, err
+	}
+
+	// Execute the SQL query
+	rows, err := database.DB.Query(query, args...)
+	if err != nil {
+		log.Printf("[INFO] Error executing SQL query: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Iterate through the rows and collect cars
+	var cars []*model.Car
+	for rows.Next() {
+		var car model.Car
+		err := rows.Scan(&car.ID, &car.RegNum, &car.Make, &car.Model, &car.Year, &car.OwnerID)
+		if err != nil {
+			log.Printf("[INFO] Error scanning row: %v", err)
+			return nil, err
+		}
+		cars = append(cars, &car)
+	}
+
+	return cars, nil
 }

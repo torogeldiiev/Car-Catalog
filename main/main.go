@@ -32,7 +32,7 @@ func main() {
 
 	// Register routes
 	http.HandleFunc("/cars/create", carController.CreateCarHandler)
-	http.HandleFunc("/cars/get", carController.GetCarByIDHandler)
+	http.HandleFunc("/cars/get", carController.GetCarsFilteredHandler)
 	http.HandleFunc("/cars/update", carController.UpdateCarHandler)
 	http.HandleFunc("/cars/delete", carController.DeleteCarHandler)
 
