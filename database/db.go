@@ -3,14 +3,13 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	_ "github.com/lib/pq"
+	_ "github.com/torogeldiiev/car_catalog/config"
 )
 
-var DB *sql.DB // Exported db variable
+var DB *sql.DB
 
 func InitDB() (*sql.DB, error) {
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
@@ -26,34 +25,5 @@ func InitDB() (*sql.DB, error) {
 	}
 	fmt.Println("Database connection successful")
 
-	// Run migrations
-	if err := RunMigrations(); err != nil {
-		return nil, err
-	}
-
 	return DB, nil
-}
-
-func RunMigrations() error {
-	migrationDir := "./database"
-	files, err := ioutil.ReadDir(migrationDir)
-	if err != nil {
-		return err
-	}
-
-	for _, file := range files {
-		if filepath.Ext(file.Name()) == ".sql" {
-			migrationPath := filepath.Join(migrationDir, file.Name())
-			migrationSQL, err := ioutil.ReadFile(migrationPath)
-			if err != nil {
-				return err
-			}
-
-			if _, err := DB.Exec(string(migrationSQL)); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }
