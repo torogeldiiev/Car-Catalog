@@ -30,21 +30,20 @@ func (s *MockServer) infoHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Processing request with registration numbers: %v", regNums)
 
-	// Simulate response data based on the regNums
 	var cars []*model.Car
 	for _, regNum := range regNums {
 		car := model.Car{
-			RegNum:  regNum,
-			Make:    "Lada",
-			Model:   "Vesta",
-			Year:    2002,
-			OwnerID: 1, // Assuming a fixed owner ID for demonstration
+			RegNum:  &regNum,
+			Make:    stringPointer("Lada"),
+			Model:   stringPointer("Vesta"),
+			Year:    intPointer(2002),
+			OwnerID: intPointer(1), // Convert int constant to a pointer to int
 		}
 		cars = append(cars, &car)
 	}
+
 	log.Printf("Generated %d cars", len(cars))
 
-	// Marshal the response data to JSON format
 	responseJSON, err := json.Marshal(cars)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -55,4 +54,11 @@ func (s *MockServer) infoHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(responseJSON)
+}
+func stringPointer(s string) *string {
+	return &s
+}
+
+func intPointer(i int) *int {
+	return &i
 }

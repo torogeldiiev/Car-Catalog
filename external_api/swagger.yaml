@@ -1,0 +1,140 @@
+swagger: "2.0"
+info:
+  title: Car Catalog API
+  description: An API for managing a car catalog
+  version: "1.0.0"
+basePath: /api/v1
+schemes:
+  - http
+paths:
+  /cars/create:
+    post:
+      summary: Create Car
+      description: |
+        Create a new car with the given registration numbers. This endpoint internally calls an external API to fetch additional data before creating the car records.
+      parameters:
+        - name: regNums
+          in: body
+          description: List of registration numbers for the cars to be created.
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        201:
+          description: Created
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Car"
+  /cars/filter:
+    get:
+      summary: Get Cars Filtered
+      description: |
+        Retrieve cars based on filtering criteria. The criteria should be provided as query parameters.
+      parameters:
+        - name: criteria
+          in: query
+          description: Filtering criteria for cars retrieval.
+          required: true
+          type: string
+        - name: limit
+          in: query
+          description: Maximum number of cars to return.
+          required: false
+          type: integer
+        - name: offset
+          in: query
+          description: Number of cars to skip before starting to return cars.
+          required: false
+          type: integer
+      responses:
+        200:
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CarWithOwner"
+  /cars/update:
+    put:
+      summary: Update Car
+      description: Update an existing car record.
+      parameters:
+        - name: id
+          in: query
+          description: ID of the car to be updated.
+          required: true
+          type: string
+        - name: car
+          in: body
+          description: Updated car data.
+          required: true
+          schema:
+            $ref: "#/definitions/Car"
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        500:
+          description: Internal Server Error
+  /cars/delete:
+    delete:
+      summary: Delete Car
+      description: Delete an existing car record.
+      parameters:
+        - name: id
+          in: query
+          description: ID of the car to be deleted.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        500:
+          description: Internal Server Error
+definitions:
+  Car:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "12345"
+      regNum:
+        type: string
+        example: "ABC123"
+      make:
+        type: string
+        example: "Toyota"
+      model:
+        type: string
+        example: "Camry"
+      year:
+        type: integer
+        example: 2018
+      ownerID:
+        type: string
+        example: "56789"
+  CarWithOwner:
+    type: object
+    properties:
+      car:
+        $ref: "#/definitions/Car"
+      owner:
+        type: object
+        properties:
+          id:
+            type: string
+            example: "56789"
+          name:
+            type: string
+            example: "John"
+          surname:
+            type: string
+            example: "Doe"
+          patronymic:
+            type: string
+            example: "Smith"
