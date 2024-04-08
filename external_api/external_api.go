@@ -24,6 +24,7 @@ func (s *MockServer) Start() {
 }
 
 // infoHandler handles the /info endpoint
+// затычка реализующая роль внешнего апи
 func (s *MockServer) infoHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the regNums parameter from the query string
 	regNums := r.URL.Query()["regNums"]
