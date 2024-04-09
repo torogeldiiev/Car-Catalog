@@ -66,8 +66,8 @@ Create Car:
 
 Endpoint: POST http://localhost:8080/cars/create
 Request Body: JSON
-json
-Copy code
+json  
+
 {
     "regNums": ["IT2214", "KRUIZ44"]
 }
@@ -78,8 +78,8 @@ Create Person:
 
 Endpoint: POST http://localhost:8080/people/create
 Request Body: JSON
-json
-Copy code
+json  
+
 {
     "name": "Jon",
     "surname": "Doe",
@@ -102,8 +102,8 @@ Update Car:
 
 Endpoint: http://localhost:8080/cars/update?id=7
 Request Body: JSON
-json
-Copy code
+json  
+
 {
     "Year": 2005
 }
@@ -112,8 +112,8 @@ Update Person:
 
 Endpoint: http://localhost:8080/people/update?id=2
 Request Body: JSON
-json
-Copy code
+json  
+
 {
     "patronymic": "Alex"
 }
