@@ -33,62 +33,85 @@ markdown
 Copy code
 
 6. **API Endpoints**:
-- The application exposes the following API endpoints:
-  - `/cars`: Manage cars (create, read, update, delete).
-  - `/people`: Manage people (create, read, update, delete).
+API Endpoints
+The application exposes the following API endpoints:
 
-## Usage
-- Access the API using your preferred API client (e.g., Postman).
-- Send requests to the appropriate endpoints to interact with the application.
-- Refer to the API documentation or code comments for more details on request formats and responses.
+Cars
+Manage cars: Allows creation, retrieval, updating, and deletion of cars.
+People
+Manage people: Allows creation, retrieval, updating, and deletion of people.
+Usage
+Access the API using your preferred API client (e.g., Postman). Send requests to the appropriate endpoints to interact with the application. Refer to the API documentation or code comments for more details on request formats and responses.
 
-## Example Postman Requests
+Example Postman Requests
+**GET Requests**
+Retrieve cars filtered by mark:
 
-### GET
--- http://localhost:8080/cars/get?criteria=mark='Lada'&limit=10&offset=0  
+Endpoint: http://localhost:8080/cars/get?criteria=mark='Lada'&limit=10&offset=0
+Retrieve cars filtered by year:
 
--- http://localhost:8080/cars/get?criteria=year>2000&limit=5&offset=0  
+Endpoint: http://localhost:8080/cars/get?criteria=year>2000&limit=5&offset=0
+Retrieve cars by registration number:
 
--- http://localhost:8080/cars/get?criteria=reg_num='1010BM'&limit=5&offset=0  
+Endpoint: http://localhost:8080/cars/get?criteria=reg_num='1010BM'&limit=5&offset=0
+Retrieve cars by ID:
 
--- http://localhost:8080/cars/get?criteria=cars.id>1&limit=3&offset=0  
+Endpoint: http://localhost:8080/cars/get?criteria=cars.id>1&limit=3&offset=0
+Retrieve person by ID:
 
---http://localhost:8080/people/get?id=2
+Endpoint: http://localhost:8080/people/get?id=2
 
-### CREATE
-http://localhost:8080/cars/create
+**POST Requests**
+Create Car:
 
-request body - raw , json format
-
+Endpoint: POST http://localhost:8080/cars/create
+Request Body: JSON
+json
+Copy code
 {
-    "regNums" : ["IT2214" , "KRUIZ44"]
+    "regNums": ["IT2214", "KRUIZ44"]
 }
+Response: Status Code 201 Created
+Create Person:
 
-
-http://localhost:8080/people/create
+Endpoint: POST http://localhost:8080/people/create
+Request Body: JSON
+json
+Copy code
 {
     "name": "Jon",
     "surname": "Doe",
-    "patronymic":"Alice"
-
+    "patronymic": "Alice"
 }
+Response: Status Code 201 Created, Content: ID of the created person
 
-### DELETE
-http://localhost:8080/cars/delete?id=10
-http://localhost:8080/people/delete?id=3
 
-### UPDATE
-http://localhost:8080/cars/update?id=7
-request body - raw , json format
+**DELETE Requests**
+Delete Car:
+
+Endpoint: http://localhost:8080/cars/delete?id=10
+Delete Person:
+
+Endpoint: http://localhost:8080/people/delete?id=3
+**UPDATE Requests**
+Update Car:
+
+Endpoint: http://localhost:8080/cars/update?id=7
+Request Body: JSON
+json
+Copy code
 {
     "Year": 2005
 }
+Update Person:
 
-http://localhost:8080/people/update?id=2
+Endpoint: http://localhost:8080/people/update?id=2
+Request Body: JSON
+json
+Copy code
 {
-    "patronymic":"Alex"
+    "patronymic": "Alex"
 }
-
 ## Multithreading for External API Interactions
 
 If your application interacts with external APIs that may introduce latency, you might consider implementing multithreading to improve performance and responsiveness.
