@@ -45,10 +45,14 @@ Copy code
 ## Example Postman Requests
 
 ### GET
--- http://localhost:8080/cars/get?criteria=mark='Lada'&limit=10&offset=0
--- http://localhost:8080/cars/get?criteria=year>2000&limit=5&offset=0
--- http://localhost:8080/cars/get?criteria=reg_num='1010BM'&limit=5&offset=0
--- http://localhost:8080/cars/get?criteria=cars.id>1&limit=3&offset=0
+-- http://localhost:8080/cars/get?criteria=mark='Lada'&limit=10&offset=0  
+
+-- http://localhost:8080/cars/get?criteria=year>2000&limit=5&offset=0  
+
+-- http://localhost:8080/cars/get?criteria=reg_num='1010BM'&limit=5&offset=0  
+
+-- http://localhost:8080/cars/get?criteria=cars.id>1&limit=3&offset=0  
+
 ### CREATE
 http://localhost:8080/cars/create
 
