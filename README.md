@@ -119,10 +119,9 @@ json
 }
 ## Multithreading for External API Interactions
 
-If your application interacts with external APIs that may introduce latency, you might consider implementing multithreading to improve performance and responsiveness.
-Multithreading allows your application to handle multiple tasks concurrently, such as making multiple API requests simultaneously, without blocking the main execution flow.
+This application interacts with external APIs that may introduce latency, i consider implementing multithreading to improve performance and responsiveness later on.
+Multithreading will allow this application to handle multiple tasks concurrently, such as making multiple API requests simultaneously, without blocking the main execution flow.
 
-This can be implemented later if service requires it.
 
 ## Contributing
 Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or create a pull request.
