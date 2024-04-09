@@ -3,6 +3,8 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/torogeldiiev/car_catalog/model"
 )
@@ -19,7 +21,6 @@ func NewPeopleRepository(db *sql.DB) *PeopleRepository {
 	}
 }
 
-// CreatePerson inserts a new person into the database
 func (pr *PeopleRepository) CreatePerson(person model.People) (int, error) {
 	query := "INSERT INTO people (name, surname, patronymic) VALUES ($1, $2, $3) RETURNING id"
 	var personID int
@@ -27,10 +28,10 @@ func (pr *PeopleRepository) CreatePerson(person model.People) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("error creating person: %v", err)
 	}
+	log.Printf("[INFO] Created person with ID %d", personID)
 	return personID, nil
 }
 
-// GetPersonByID retrieves a person from the database by their ID
 func (pr *PeopleRepository) GetPersonByID(personID int) (*model.People, error) {
 	query := "SELECT name, surname, patronymic FROM people WHERE id = $1"
 	row := pr.db.QueryRow(query, personID)
@@ -39,25 +40,43 @@ func (pr *PeopleRepository) GetPersonByID(personID int) (*model.People, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error getting person by ID: %v", err)
 	}
+	log.Printf("[INFO] Retrieved person with ID %d", personID)
 	return &person, nil
 }
 
-// UpdatePerson updates an existing person in the database
 func (pr *PeopleRepository) UpdatePerson(personID int, updatedPerson model.People) error {
-	query := "UPDATE people SET name = $1, surname = $2, patronymic = $3 WHERE id = $4"
-	_, err := pr.db.Exec(query, updatedPerson.Name, updatedPerson.Surname, updatedPerson.Patronymic, personID)
-	if err != nil {
-		return fmt.Errorf("error updating person: %v", err)
+	setClause := " SET "
+	var assignments []string
+
+	if updatedPerson.Name != "" {
+		assignments = append(assignments, fmt.Sprintf("name = '%s'", updatedPerson.Name))
 	}
+	if updatedPerson.Surname != "" {
+		assignments = append(assignments, fmt.Sprintf("surname = '%s'", updatedPerson.Surname))
+	}
+	if updatedPerson.Patronymic != "" {
+		assignments = append(assignments, fmt.Sprintf("patronymic = '%s'", updatedPerson.Patronymic))
+	}
+
+	setClause += strings.Join(assignments, ", ")
+
+	query := "UPDATE people" + setClause + " WHERE id = $1"
+
+	_, err := pr.db.Exec(query, personID)
+	if err != nil {
+		log.Printf("[ERROR] Failed to update person with ID %d: %v", personID, err)
+		return err
+	}
+	log.Printf("[INFO] Updated person with ID %d", personID)
 	return nil
 }
 
-// DeletePerson deletes a person from the database by their ID
 func (pr *PeopleRepository) DeletePerson(personID int) error {
 	query := "DELETE FROM people WHERE id = $1"
 	_, err := pr.db.Exec(query, personID)
 	if err != nil {
 		return fmt.Errorf("error deleting person: %v", err)
 	}
+	log.Printf("[INFO] Deleted person with ID %d", personID)
 	return nil
 }

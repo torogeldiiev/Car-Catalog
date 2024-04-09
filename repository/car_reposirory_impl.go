@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Masterminds/squirrel"
-	"github.com/torogeldiiev/car_catalog/database"
 	"github.com/torogeldiiev/car_catalog/model"
 	"io/ioutil"
 	"log"
@@ -26,7 +25,7 @@ func (r *CarRepositoryImpl) CreateCar(regNums []string, db *sql.DB) ([]*model.Ca
 	// Construct the URL for the external API request
 	url := fmt.Sprintf("http://localhost:8081/info?regNums=%s", strings.Join(regNums, ","))
 
-	// Make a GET request to the external API
+	// Make a GET request to the imaginary external API
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("[INFO] Error making GET request to external API: %v", err)
@@ -34,15 +33,12 @@ func (r *CarRepositoryImpl) CreateCar(regNums []string, db *sql.DB) ([]*model.Ca
 	}
 	defer resp.Body.Close()
 
-	// Check the response status code
 	if resp.StatusCode != http.StatusOK {
-		// Log the error message if the status code is not OK
 		body, _ := ioutil.ReadAll(resp.Body)
 		log.Printf("[INFO] Error response from external API: %s", string(body))
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	// Decode the response body into a slice of Car objects
 	var cars []*model.Car
 	if err := json.NewDecoder(resp.Body).Decode(&cars); err != nil {
 		log.Printf("[INFO] Error decoding response body: %v", err)
@@ -51,7 +47,6 @@ func (r *CarRepositoryImpl) CreateCar(regNums []string, db *sql.DB) ([]*model.Ca
 
 	// Insert the fetched cars into the database
 	for _, car := range cars {
-		// Prepare the SQL statement for inserting a new car
 		stmt, err := db.Prepare("INSERT INTO cars (reg_num, mark, model, year, owner_id) VALUES ($1, $2, $3, $4, $5)")
 		if err != nil {
 			log.Printf("[INFO] Error preparing SQL statement: %v", err)
@@ -59,7 +54,6 @@ func (r *CarRepositoryImpl) CreateCar(regNums []string, db *sql.DB) ([]*model.Ca
 		}
 		defer stmt.Close()
 
-		// Execute the prepared SQL statement with car details
 		_, err = stmt.Exec(car.RegNum, car.Make, car.Model, car.Year, car.OwnerID)
 		if err != nil {
 			log.Println("[INFO] Error inserting car into database: %v", err)
@@ -74,6 +68,8 @@ func (r *CarRepositoryImpl) CreateCar(regNums []string, db *sql.DB) ([]*model.Ca
 }
 
 func (r *CarRepositoryImpl) UpdateCar(carID string, updatedCar model.Car) error {
+	log.Println("[DEBUG] Entering UpdateCar repository method")
+
 	setClause := " SET "
 	var assignments []string
 
@@ -91,26 +87,35 @@ func (r *CarRepositoryImpl) UpdateCar(carID string, updatedCar model.Car) error 
 
 	query := "UPDATE cars" + setClause + " WHERE id = $1"
 
-	_, err := database.DB.Exec(query, carID)
+	_, err := r.DB.Exec(query, carID)
 	if err != nil {
 		log.Printf("[INFO] Error updating car: %v", err) // Log the error
 		return err
 	}
+
+	log.Println("[DEBUG] Exiting UpdateCar repository method")
+
 	return nil
 }
+
 func (r *CarRepositoryImpl) DeleteCar(carID string) error {
+	log.Println("[DEBUG] Entering DeleteCar repository method")
+
 	query := "DELETE FROM cars WHERE id = $1"
-	_, err := database.DB.Exec(query, carID)
+	_, err := r.DB.Exec(query, carID)
 	if err != nil {
-		log.Printf("[INFO] Error deleting car: %v", err) // Log the error
+		log.Printf("[INFO] Error deleting car: %v", err)
 		return err
 	}
+
+	log.Println("[DEBUG] Exiting DeleteCar repository method")
 
 	return nil
 }
 
 func (r *CarRepositoryImpl) GetExistingRegNums(db *sql.DB) ([]string, error) {
-	// Query the database to get existing registration numbers
+	log.Println("[DEBUG] Entering GetExistingRegNums repository method")
+
 	rows, err := db.Query("SELECT reg_num FROM cars")
 	if err != nil {
 		return nil, err
@@ -118,7 +123,6 @@ func (r *CarRepositoryImpl) GetExistingRegNums(db *sql.DB) ([]string, error) {
 	defer rows.Close()
 
 	var existingRegNums []string
-	// Iterate through the rows and collect registration numbers
 	for rows.Next() {
 		var regNum string
 		if err := rows.Scan(&regNum); err != nil {
@@ -126,17 +130,21 @@ func (r *CarRepositoryImpl) GetExistingRegNums(db *sql.DB) ([]string, error) {
 		}
 		existingRegNums = append(existingRegNums, regNum)
 	}
+
+	log.Println("[DEBUG] Exiting GetExistingRegNums repository method")
+
 	return existingRegNums, nil
 }
 
 func (r *CarRepositoryImpl) GetCarsFiltered(criteria string, limit, offset int) ([]*model.Car, []*model.People, error) {
+	log.Println("[DEBUG] Entering GetCarsFiltered repository method")
+
 	queryBuilder := squirrel.Select("cars.id", "cars.reg_num", "cars.mark", "cars.model", "cars.year", "cars.owner_id", "people.name", "people.surname", "people.patronymic").
 		From("cars").
 		Join("people ON cars.owner_id = people.id").
 		Limit(uint64(limit)).
 		Offset(uint64(offset))
 
-	// Adding the WHERE clause based on the provided criteria
 	if criteria != "" {
 		queryBuilder = queryBuilder.Where(criteria)
 	}
@@ -148,7 +156,6 @@ func (r *CarRepositoryImpl) GetCarsFiltered(criteria string, limit, offset int) 
 		return nil, nil, err
 	}
 
-	// Execute the SQL query
 	rows, err := r.DB.Query(query, args...)
 	if err != nil {
 		log.Printf("[INFO] Error executing SQL query: %v", err)
@@ -170,6 +177,8 @@ func (r *CarRepositoryImpl) GetCarsFiltered(criteria string, limit, offset int) 
 		cars = append(cars, &car)
 		owners = append(owners, &owner)
 	}
+
+	log.Println("[DEBUG] Exiting GetCarsFiltered repository method")
 
 	return cars, owners, nil
 }

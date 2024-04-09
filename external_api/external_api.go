@@ -43,8 +43,6 @@ func (s *MockServer) infoHandler(w http.ResponseWriter, r *http.Request) {
 		cars = append(cars, &car)
 	}
 
-	log.Printf("Generated %d cars", len(cars))
-
 	responseJSON, err := json.Marshal(cars)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

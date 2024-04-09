@@ -1,11 +1,12 @@
 package service
 
 import (
+	"fmt"
 	"github.com/torogeldiiev/car_catalog/model"
 	"github.com/torogeldiiev/car_catalog/repository"
+	"log"
 )
 
-// PeopleService handles business logic related to people entities
 type PeopleService struct {
 	peopleRepository *repository.PeopleRepository
 }
@@ -17,22 +18,46 @@ func NewPeopleService(peopleRepo *repository.PeopleRepository) *PeopleService {
 	}
 }
 
-// CreatePerson creates a new person
 func (ps *PeopleService) CreatePerson(person model.People) (int, error) {
-	return ps.peopleRepository.CreatePerson(person)
+	log.Println("[INFO] Creating new person...")
+	personID, err := ps.peopleRepository.CreatePerson(person)
+	if err != nil {
+		log.Printf("[ERROR] Error creating person: %v", err)
+		return 0, fmt.Errorf("error creating person: %v", err)
+	}
+	log.Printf("[INFO] Successfully created person with ID: %d", personID)
+	return personID, nil
 }
 
-// GetPersonByID retrieves a person by their ID
 func (ps *PeopleService) GetPersonByID(personID int) (*model.People, error) {
-	return ps.peopleRepository.GetPersonByID(personID)
+	log.Printf("[INFO] Retrieving person with ID: %d", personID)
+	person, err := ps.peopleRepository.GetPersonByID(personID)
+	if err != nil {
+		log.Printf("[ERROR] Error retrieving person with ID %d: %v", personID, err)
+		return nil, fmt.Errorf("error retrieving person with ID %d: %v", personID, err)
+	}
+	log.Printf("[INFO] Successfully retrieved person with ID %d", personID)
+	return person, nil
 }
 
-// UpdatePerson updates an existing person
 func (ps *PeopleService) UpdatePerson(personID int, updatedPerson model.People) error {
-	return ps.peopleRepository.UpdatePerson(personID, updatedPerson)
+	log.Printf("[INFO] Updating person with ID: %d", personID)
+	err := ps.peopleRepository.UpdatePerson(personID, updatedPerson)
+	if err != nil {
+		log.Printf("[ERROR] Error updating person with ID %d: %v", personID, err)
+		return fmt.Errorf("error updating person with ID %d: %v", personID, err)
+	}
+	log.Printf("[INFO] Successfully updated person with ID %d", personID)
+	return nil
 }
 
-// DeletePerson deletes a person by their ID
 func (ps *PeopleService) DeletePerson(personID int) error {
-	return ps.peopleRepository.DeletePerson(personID)
+	log.Printf("[INFO] Deleting person with ID: %d", personID)
+	err := ps.peopleRepository.DeletePerson(personID)
+	if err != nil {
+		log.Printf("[ERROR] Error deleting person with ID %d: %v", personID, err)
+		return fmt.Errorf("error deleting person with ID %d: %v", personID, err)
+	}
+	log.Printf("[INFO] Successfully deleted person with ID %d", personID)
+	return nil
 }

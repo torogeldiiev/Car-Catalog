@@ -1,140 +1,231 @@
 swagger: "2.0"
 info:
   title: Car Catalog API
-  description: An API for managing a car catalog
-  version: "1.0.0"
-basePath: /api/v1
-schemes:
-  - http
+  version: "1.0"
 paths:
   /cars/create:
     post:
-      summary: Create Car
-      description: |
-        Create a new car with the given registration numbers. This endpoint internally calls an external API to fetch additional data before creating the car records.
+      summary: Create a new car
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
-        - name: regNums
-          in: body
-          description: List of registration numbers for the cars to be created.
-          required: true
+        - in: body
+          name: regNum
+          description: Registration numbers of the cars to create
           schema:
-            type: array
-            items:
-              type: string
+            type: object
+            required:
+              - regNums
+            properties:
+              regNums:
+                type: array
+                items:
+                  type: string
       responses:
         201:
-          description: Created
+          description: Successfully created cars
           schema:
             type: array
             items:
               $ref: "#/definitions/Car"
-  /cars/filter:
+        400:
+          description: Bad request
+        500:
+          description: Internal server error
+
+  /cars/get:
     get:
-      summary: Get Cars Filtered
-      description: |
-        Retrieve cars based on filtering criteria. The criteria should be provided as query parameters.
+      summary: Get cars filtered by criteria
+      produces:
+        - application/json
       parameters:
-        - name: criteria
-          in: query
-          description: Filtering criteria for cars retrieval.
-          required: true
+        - in: query
+          name: criteria
           type: string
-        - name: limit
-          in: query
-          description: Maximum number of cars to return.
-          required: false
+          required: true
+          description: Filtering criteria
+        - in: query
+          name: limit
           type: integer
-        - name: offset
-          in: query
-          description: Number of cars to skip before starting to return cars.
-          required: false
+          description: Limit the number of results
+        - in: query
+          name: offset
           type: integer
+          description: Offset for pagination
       responses:
         200:
-          description: Success
+          description: Successfully retrieved cars
           schema:
             type: array
             items:
-              $ref: "#/definitions/CarWithOwner"
+              $ref: "#/definitions/Car"
+        400:
+          description: Bad request
+        500:
+          description: Internal server error
+
   /cars/update:
     put:
-      summary: Update Car
-      description: Update an existing car record.
+      summary: Update a car
+      consumes:
+        - application/json
+      produces:
+        - application/json
       parameters:
-        - name: id
-          in: query
-          description: ID of the car to be updated.
-          required: true
+        - in: query
+          name: id
           type: string
-        - name: car
-          in: body
-          description: Updated car data.
           required: true
+          description: ID of the car to update
+        - in: body
+          name: updatedCar
+          description: Updated car data
           schema:
             $ref: "#/definitions/Car"
       responses:
         200:
-          description: Success
+          description: Successfully updated car
         400:
-          description: Bad Request
+          description: Bad request
         500:
-          description: Internal Server Error
+          description: Internal server error
+
   /cars/delete:
     delete:
-      summary: Delete Car
-      description: Delete an existing car record.
+      summary: Delete a car
+      produces:
+        - application/json
       parameters:
-        - name: id
-          in: query
-          description: ID of the car to be deleted.
-          required: true
+        - in: query
+          name: id
           type: string
+          required: true
+          description: ID of the car to delete
       responses:
         200:
-          description: Success
+          description: Successfully deleted car
         400:
-          description: Bad Request
+          description: Bad request
         500:
-          description: Internal Server Error
+          description: Internal server error
+
+  /people/create:
+    post:
+      summary: Create a new person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: personData
+          description: Information about the person to create
+          schema:
+            $ref: "#/definitions/People"
+      responses:
+        201:
+          description: Successfully created person
+          schema:
+            type: object
+            properties:
+              personID:
+                type: integer
+        400:
+          description: Bad request
+        500:
+          description: Internal server error
+
+  /people/get:
+    get:
+      summary: Get person by ID
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: id
+          type: integer
+          required: true
+          description: ID of the person to retrieve
+      responses:
+        200:
+          description: Successfully retrieved person
+          schema:
+            $ref: "#/definitions/People"
+        400:
+          description: Bad request
+        500:
+          description: Internal server error
+
+  /people/update:
+    put:
+      summary: Update a person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: id
+          type: integer
+          required: true
+          description: ID of the person to update
+        - in: body
+          name: updatedPerson
+          description: Updated person data
+          schema:
+            $ref: "#/definitions/People"
+      responses:
+        200:
+          description: Successfully updated person
+        400:
+          description: Bad request
+        500:
+          description: Internal server error
+
+  /people/delete:
+    delete:
+      summary: Delete a person
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: id
+          type: integer
+          required: true
+          description: ID of the person to delete
+      responses:
+        200:
+          description: Successfully deleted person
+        400:
+          description: Bad request
+        500:
+          description: Internal server error
+
 definitions:
   Car:
     type: object
     properties:
-      id:
-        type: string
-        example: "12345"
-      regNum:
-        type: string
-        example: "ABC123"
-      make:
-        type: string
-        example: "Toyota"
-      model:
-        type: string
-        example: "Camry"
-      year:
+      ID:
         type: integer
-        example: 2018
-      ownerID:
+      RegNum:
         type: string
-        example: "56789"
-  CarWithOwner:
+      Make:
+        type: string
+      Model:
+        type: string
+      Year:
+        type: integer
+      OwnerID:
+        type: integer
+
+  People:
     type: object
     properties:
-      car:
-        $ref: "#/definitions/Car"
-      owner:
-        type: object
-        properties:
-          id:
-            type: string
-            example: "56789"
-          name:
-            type: string
-            example: "John"
-          surname:
-            type: string
-            example: "Doe"
-          patronymic:
-            type: string
-            example: "Smith"
+      Name:
+        type: string
+      Surname:
+        type: string
+      Patronymic:
+        type: string
