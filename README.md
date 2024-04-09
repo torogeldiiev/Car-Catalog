@@ -71,7 +71,9 @@ Copy code
 {
     "regNums": ["IT2214", "KRUIZ44"]
 }
-Response: Status Code 201 Created
+Response: Status Code 201 Created  
+
+
 Create Person:
 
 Endpoint: POST http://localhost:8080/people/create
@@ -89,10 +91,12 @@ Response: Status Code 201 Created, Content: ID of the created person
 **DELETE Requests**
 Delete Car:
 
-Endpoint: http://localhost:8080/cars/delete?id=10
+Endpoint: http://localhost:8080/cars/delete?id=10  
+
 Delete Person:
 
-Endpoint: http://localhost:8080/people/delete?id=3
+Endpoint: http://localhost:8080/people/delete?id=3  
+
 **UPDATE Requests**
 Update Car:
 
@@ -103,7 +107,8 @@ Copy code
 {
     "Year": 2005
 }
-Update Person:
+
+Update Person:  
 
 Endpoint: http://localhost:8080/people/update?id=2
 Request Body: JSON
