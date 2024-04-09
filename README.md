@@ -53,6 +53,8 @@ Copy code
 
 -- http://localhost:8080/cars/get?criteria=cars.id>1&limit=3&offset=0  
 
+--http://localhost:8080/people/get?id=2
+
 ### CREATE
 http://localhost:8080/cars/create
 
@@ -62,14 +64,29 @@ request body - raw , json format
     "regNums" : ["IT2214" , "KRUIZ44"]
 }
 
+
+http://localhost:8080/people/create
+{
+    "name": "Jon",
+    "surname": "Doe",
+    "patronymic":"Alice"
+
+}
+
 ### DELETE
 http://localhost:8080/cars/delete?id=10
+http://localhost:8080/people/delete?id=3
 
 ### UPDATE
 http://localhost:8080/cars/update?id=7
 request body - raw , json format
 {
     "Year": 2005
+}
+
+http://localhost:8080/people/update?id=2
+{
+    "patronymic":"Alex"
 }
 
 ## Multithreading for External API Interactions
