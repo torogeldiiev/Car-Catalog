@@ -3,6 +3,11 @@
 ## Overview
 This is a simple car catalog application that allows users to manage cars and people information.
 
+## Multithreading for External API Interactions
+
+This application interacts with external APIs that may introduce latency, i consider implementing multithreading to improve performance and responsiveness later on.
+Multithreading will allow this application to handle multiple tasks concurrently, such as making multiple API requests simultaneously, without blocking the main execution flow.
+
 ## Setup
 1. **Database Configuration**:
    - Ensure you have PostgreSQL installed and running.
@@ -29,8 +34,6 @@ This is a simple car catalog application that allows users to manage cars and pe
 go build -o car_catalog
 ./car_catalog
 
-markdown
-Copy code
 
 6. **API Endpoints**:
 API Endpoints
@@ -117,10 +120,6 @@ json
 {
     "patronymic": "Alex"
 }
-## Multithreading for External API Interactions
-
-This application interacts with external APIs that may introduce latency, i consider implementing multithreading to improve performance and responsiveness later on.
-Multithreading will allow this application to handle multiple tasks concurrently, such as making multiple API requests simultaneously, without blocking the main execution flow.
 
 
 ## Contributing
