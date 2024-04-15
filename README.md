@@ -45,7 +45,7 @@ Access the API using your preferred API client (e.g., Postman). Send requests to
 
 Example Postman Requests
 **GET Requests**
-Retrieve cars filtered by mark:
+Retrieve cars filtered by any fields of cars:
 
 Endpoint: http://localhost:8080/cars/get?criteria=mark='Lada'&limit=10&offset=0
 Retrieve cars filtered by year:
